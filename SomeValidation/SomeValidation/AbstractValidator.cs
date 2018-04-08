@@ -5,14 +5,13 @@
     public abstract class AbstractValidator
     {
         public event Action<string, string> OnError;
-        public Func<string> GetNewParameterName;
-        public Func<string> GetOldParameterName;
+        protected Func<string> GetParameterName;
 
         public T Create<T>() where T : AbstractValidator, new()
         {
             var t = new T();
 
-            t.GetOldParameterName = this.GetNewParameterName;
+            t.GetParameterName = this.GetParameterName;
 
             t.OnError = (a, b) => OnError(a, b);
 
@@ -21,7 +20,7 @@
 
         public void RaiseError(string propertyName, string message)
         {
-            OnError(this.GetNewParameterName() + "." + propertyName, message);
+            OnError(this.GetParameterName() + "." + propertyName, message);
         }
     }
 
@@ -29,11 +28,15 @@
     {
         public void Validate(T t, string pname)
         {
-            this.GetNewParameterName = () => this.GetOldParameterName != null ? this.GetOldParameterName() + "." + pname : pname;
+            if (this.GetParameterName != null)
+                pname = this.GetParameterName() + "." + pname;
+
+            this.GetParameterName = () => pname;
 
             this.Validate(t);
         }
 
         public abstract void Validate(T t);
     }
+
 }
