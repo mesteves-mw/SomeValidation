@@ -4,14 +4,11 @@
 
     public abstract class AbstractValidator
     {
-        protected string ClassParameterName { get; set; }
-
         public event Action<string, string> OnError;
 
         public T Create<T>() where T : AbstractValidator, new()
         {
             var t = new T();
-            t.ClassParameterName = this.ClassParameterName;
 
             t.OnError = OnError;
 
@@ -20,33 +17,25 @@
 
         public void RaiseError(string propertyName, string message)
         {
-            OnError(this.ClassParameterName + "." + propertyName, message);
+            OnError(propertyName, message);
         }
     }
 
     public abstract class AbstractValidator<T> : AbstractValidator
     {
-        private readonly object syncRoot = new object();
+        /// <summary>
+        /// Call delegate to carry parent parameter name context. e.g. forName("MyParam") returns "parentName.MyParam".
+        /// </summary>
+        protected delegate string ForName(string parameterName);
+
         public void Validate(T t, string pname)
         {
-            lock (syncRoot)
-            {
-                var oldParam = this.ClassParameterName;
+            ForName forName = p => pname + "." + p;
 
-                if (!string.IsNullOrEmpty(this.ClassParameterName))
-                {
-                    pname = this.ClassParameterName + "." + pname;
-                }
-
-                this.ClassParameterName = pname;
-
-                this.Validate(t);
-
-                this.ClassParameterName = oldParam;
-            }
+            this.Validate(t, forName);
         }
 
-        public abstract void Validate(T t);
+        protected abstract void Validate(T t, ForName forName);
     }
 
 }
