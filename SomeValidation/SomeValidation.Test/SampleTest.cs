@@ -1,6 +1,7 @@
 ﻿namespace SomeValidation.Test
 {
     using NUnit.Framework;
+    using System.Threading.Tasks;
 
     [TestFixture]
     public class ValidatorTest
@@ -48,7 +49,7 @@
         }
 
         [Test]
-        public void Test()
+        public void SmokeTest()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -62,14 +63,57 @@
 
             cv.Validate(cust, "cust");
 
-            Assert.That(errors, Is.EqualTo(
-                " -- cust.Name is null!\n" +
-                " -- cust.AddressData.PostCode is null!\n" +
-                " -- cust.AddressData.Owner.Name is null!\n" +
-                " -- cust.AddressData.Owner.AddressData.Address is null!\n" +
-                " -- cust.AddressData.Owner.Age is 0!\n" +
-                " -- cust.AddressData.Street is null!\n" +
-                " -- cust.Age is 0!\n"));
+            AssertContainsInOrder(errors,
+                " -- cust.Name is null!\n",
+                " -- cust.AddressData.PostCode is null!\n",
+                " -- cust.AddressData.Owner.Name is null!\n",
+                " -- cust.AddressData.Owner.AddressData.Address is null!\n",
+                " -- cust.AddressData.Owner.Age is 0!\n",
+                " -- cust.AddressData.Street is null!\n",
+                " -- cust.Age is 0!\n");
+        }
+
+        [Test]
+        public void ParallelTest()
+        {
+            var cust = new Customer();
+            cust.AddressData = new Address();
+            cust.AddressData.Owner = new Customer();
+
+            var cv = new CustomerValidator();
+
+            string errors = "";
+
+            cv.OnError += (p, e) => errors += string.Format(" -- " + e + "\n", p);
+
+            Parallel.Invoke(() => cv.Validate(cust, "cust"), () => cv.Validate(cust, "cust2"));
+
+            AssertContainsInOrder(errors,
+                " -- cust.Name is null!\n",
+                " -- cust.AddressData.PostCode is null!\n",
+                " -- cust.AddressData.Owner.Name is null!\n",
+                " -- cust.AddressData.Owner.AddressData.Address is null!\n",
+                " -- cust.AddressData.Owner.Age is 0!\n",
+                " -- cust.AddressData.Street is null!\n",
+                " -- cust.Age is 0!\n");
+
+            AssertContainsInOrder(errors,
+                " -- cust2.Name is null!\n",
+                " -- cust2.AddressData.PostCode is null!\n",
+                " -- cust2.AddressData.Owner.Name is null!\n",
+                " -- cust2.AddressData.Owner.AddressData.Address is null!\n",
+                " -- cust2.AddressData.Owner.Age is 0!\n",
+                " -- cust2.AddressData.Street is null!\n",
+                " -- cust2.Age is 0!\n");
+        }
+
+        public static void AssertContainsInOrder(string input, params string[] subStrings)
+        {
+            foreach(string subStr in subStrings)
+            {
+                Assert.That(input, Contains.Substring(subStr));
+                input = input.Substring(input.IndexOf(subStr) + subStr.Length);
+            }
         }
     }
 }

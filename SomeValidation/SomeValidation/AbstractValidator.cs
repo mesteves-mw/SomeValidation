@@ -4,36 +4,46 @@
 
     public abstract class AbstractValidator
     {
+        protected string ClassParameterName { get; set; }
+
         public event Action<string, string> OnError;
-        protected Func<string> GetParameterName;
 
         public T Create<T>() where T : AbstractValidator, new()
         {
             var t = new T();
+            t.ClassParameterName = this.ClassParameterName;
 
-            t.GetParameterName = this.GetParameterName;
-
-            t.OnError = (a, b) => OnError(a, b);
+            t.OnError = OnError;
 
             return t;
         }
 
         public void RaiseError(string propertyName, string message)
         {
-            OnError(this.GetParameterName() + "." + propertyName, message);
+            OnError(this.ClassParameterName + "." + propertyName, message);
         }
     }
 
     public abstract class AbstractValidator<T> : AbstractValidator
     {
+        private readonly object syncRoot = new object();
         public void Validate(T t, string pname)
         {
-            if (this.GetParameterName != null)
-                pname = this.GetParameterName() + "." + pname;
+            lock (syncRoot)
+            {
+                var oldParam = this.ClassParameterName;
 
-            this.GetParameterName = () => pname;
+                if (!string.IsNullOrEmpty(this.ClassParameterName))
+                {
+                    pname = this.ClassParameterName + "." + pname;
+                }
 
-            this.Validate(t);
+                this.ClassParameterName = pname;
+
+                this.Validate(t);
+
+                this.ClassParameterName = oldParam;
+            }
         }
 
         public abstract void Validate(T t);
