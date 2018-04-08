@@ -26,11 +26,11 @@
         /// <summary>
         /// Call delegate to carry parent parameter name context. e.g. forName("MyParam") returns "parentName.MyParam".
         /// </summary>
-        protected delegate string ForName(string parameterName);
+        protected delegate string ForName(string parameterName = null);
 
         public void Validate(T t, string pname)
         {
-            ForName forName = p => pname + "." + p;
+            ForName forName = p => p != null ? pname + "." + p : pname;
 
             this.Validate(t, forName);
         }
