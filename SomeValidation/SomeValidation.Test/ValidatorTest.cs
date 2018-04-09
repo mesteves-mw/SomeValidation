@@ -31,16 +31,16 @@
 
         public class CustomerValidator : AbstractValidator<Customer>
         {
-            public static readonly Guid Name = Guid.NewGuid();
-            public static readonly Guid Age = Guid.NewGuid();
+            public static readonly ParameterInfo Name = nameof(Customer.Name);
+            public static readonly ParameterInfo Age = nameof(Age);
 
             protected override void Validate(Customer c, ForName forName, params Guid[] ruleSet)
             {
-                if (c.Name == null) this.RaiseError(forName("Name"), "{0} is null!");
-
+                this.ShouldNotBeNull(forName(Name), c.Name);
+                
                 Create<AddressValidator>().Validate(c.AddressData, forName("AddressData"));
 
-                if (c.Age == 0) this.RaiseError(forName("Age"), "{0} is 0!");
+                if (c.Age == 0) this.RaiseError(forName(Age), "{0} is 0!");
 
                Create<MoneyValidator>().Validate(c.Balance, forName("Balance"));
             }
@@ -138,7 +138,28 @@
                 " -- cust.Age is 0!",
                 " -- cust.Balance is negative!");
         }
-        
+
+        [Test]
+        public void ValidateAndThrowTest()
+        {
+            var cust = new Customer();
+            cust.AddressData = new Address();
+            cust.AddressData.Owner = new Customer();
+
+            var cv = new CustomerValidator();
+
+            var ex = Assert.Throws<Exception>(() => cv.ValidateAndThrow(cust, "cust"));
+
+            AssertContainsInOrder(ex.Message,
+                " -- cust.Name is null!",
+                " -- cust.AddressData.PostCode is null!",
+                " -- cust.AddressData.Owner.Name is null!",
+                " -- cust.AddressData.Owner.AddressData.Address is null!",
+                " -- cust.AddressData.Owner.Age is 0!",
+                " -- cust.AddressData.Street is null!",
+                " -- cust.Age is 0!");
+        }
+
         public static void AssertContainsInOrder(string input, params string[] subStrings)
         {
             foreach(string subStr in subStrings)
