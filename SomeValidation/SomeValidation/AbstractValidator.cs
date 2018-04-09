@@ -4,7 +4,7 @@
 
     public abstract class AbstractValidator
     {
-        public event Action<IValidationFailure> OnError;
+        public event Action<IValidationError> OnError;
 
         public T Create<T>() where T : AbstractValidator, new()
         {
@@ -15,7 +15,7 @@
             return t;
         }
 
-        public void RaiseError(IValidationFailure failure)
+        public void RaiseError(IValidationError failure)
         {
             OnError(failure);
         }
@@ -28,9 +28,11 @@
         /// </summary>
         protected delegate string ForName(string parameterName = null);
 
-        public void Validate(T t, string pname, params Guid[] ruleSet)
+        public void Validate(T t, string parameterName, params Guid[] ruleSet)
         {
-            ForName forName = p => p != null ? pname + "." + p : pname;
+            ForName forName = p => p != null 
+                                    ? parameterName + "." + p 
+                                    : parameterName;
 
             this.Validate(t, forName, ruleSet);
         }

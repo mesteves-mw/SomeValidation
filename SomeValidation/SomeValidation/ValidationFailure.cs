@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class ValidationFailure : IValidationFailure
+    public class ValidationError : IValidationError
     {
         public Guid? ParameterGuid { get; set; }
         public string ParameterName { get; set; }

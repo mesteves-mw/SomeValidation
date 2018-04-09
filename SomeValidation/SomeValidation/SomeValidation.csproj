@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AbstractValidator.cs" />
     <Compile Include="ParameterInfo.cs" />
+    <Compile Include="ValidationException.cs" />
     <Compile Include="ValidationExtensions.cs" />
     <Compile Include="ValidationFailure.cs" />
     <Compile Include="IValidationFailure.cs" />

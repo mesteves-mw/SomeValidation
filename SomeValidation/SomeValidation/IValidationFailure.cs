@@ -1,6 +1,6 @@
 ﻿namespace SomeValidation
 {
-    public interface IValidationFailure
+    public interface IValidationError
     {
         string ParameterName { get; set; }
         string ErrorMessage { get; set; }

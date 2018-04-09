@@ -8,24 +8,29 @@
     {
         public static void RaiseError(this AbstractValidator validator, string parameterName, string errorMessage, Guid? guid = null, string ErrorCode = null)
         {
-            validator.RaiseError(new ValidationFailure { ErrorMessage = errorMessage, ParameterName = parameterName, ParameterGuid = guid });
+            validator.RaiseError(new ValidationError { ErrorMessage = errorMessage, ParameterName = parameterName, ParameterGuid = guid });
         }
 
-        public static IEnumerable<IValidationFailure> Validate<T>(this AbstractValidator<T> validator, T instance, string parameterName, params Guid[] ruleSet)
+        public static IEnumerable<IValidationError> Validate<T>(this AbstractValidator<T> validator, T instance, string parameterName, params Guid[] ruleSet)
         {
-            var failures = new List<IValidationFailure>();
-            validator.OnError += failures.Add;
+            var errors = new List<IValidationError>();
+            validator.OnError += errors.Add;
 
             validator.Validate(instance, parameterName, ruleSet);
 
-            return failures;
+            return errors;
         }
 
         public static void ValidateAndThrow<T>(this AbstractValidator<T> validator, T instance, string parameterName, params Guid[] ruleSet)
         {
-            IEnumerable<IValidationFailure> failures = Validate(validator, instance, parameterName, ruleSet);
-            //TODO: add failures list to the new ValidationException
-            throw new Exception("Validation failed:\r\n -- " + string.Join("\r\n -- ", failures.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName))));
+            IEnumerable<IValidationError> errors = Validate(validator, instance, parameterName, ruleSet);
+            
+            throw new ValidationException(
+                "Validation failed:\r\n -- " + 
+                string.Join(
+                    "\r\n -- ", 
+                    errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName))),
+                errors);
         }
 
         public static void ShouldNotBeNull(this AbstractValidator validator, string parameterName, string value)

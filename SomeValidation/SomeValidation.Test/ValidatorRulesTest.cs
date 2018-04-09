@@ -93,8 +93,8 @@
             var cv = new CustomerValidator();
 
             //Handling raise of errors
-            var failures = new List<IValidationFailure>();
-            cv.OnError += failures.Add;
+            var errors = new List<IValidationError>();
+            cv.OnError += errors.Add;
 
             //Calling validate
             Parallel.Invoke(
@@ -102,9 +102,9 @@
                 () => cv.Validate(cust, "cust2", CustomerValidator.Rule1, CustomerValidator.Rule2, AddressValidator.Rule1));
 
             //Handle validation failure list
-            var errors = " -- " + string.Join("\r\n -- ", failures.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
+            var errorMessage = " -- " + string.Join("\r\n -- ", errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
 
-            AssertContainsInOrder(errors,
+            AssertContainsInOrder(errorMessage,
                 " -- cust.Name is null!",
                 " -- cust2.Name is null!",
                 " -- cust2.AddressData.PostCode is null!",

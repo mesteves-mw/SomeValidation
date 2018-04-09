@@ -108,18 +108,18 @@
             var cv = new CustomerValidator();
 
             //Handling raise of errors
-            var failures = new List<IValidationFailure>();
-            cv.OnError += failures.Add;
+            var errors = new List<IValidationError>();
+            cv.OnError += errors.Add;
 
             Parallel.Invoke(() => cv.Validate(cust, "cust"), () => cv.Validate(cust, "cust2"));
             
-            var postCodeFailure = failures.FirstOrDefault(vf => (vf as ValidationFailure).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
+            var postCodeFailure = errors.FirstOrDefault(vf => (vf as ValidationError).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
             Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
 
             //Handle validation failure list
-            var errors = " -- " + string.Join("\r\n -- ", failures.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
+            var errorMessage = " -- " + string.Join("\r\n -- ", errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
             
-            AssertContainsInOrder(errors,
+            AssertContainsInOrder(errorMessage,
                 " -- cust.Name is null!",
                 " -- cust2.Name is null!",
                 " -- cust2.AddressData.PostCode is null!",
@@ -148,7 +148,7 @@
 
             var cv = new CustomerValidator();
 
-            var ex = Assert.Throws<Exception>(() => cv.ValidateAndThrow(cust, "cust"));
+            var ex = Assert.Throws<ValidationException>(() => cv.ValidateAndThrow(cust, "cust"));
 
             AssertContainsInOrder(ex.Message,
                 " -- cust.Name is null!",
