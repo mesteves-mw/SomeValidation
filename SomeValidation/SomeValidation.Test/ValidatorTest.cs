@@ -3,6 +3,8 @@
     using NUnit.Framework;
     using System;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     [TestFixture]
     public class ValidatorTest
@@ -34,11 +36,11 @@
 
             protected override void Validate(Customer c, ForName forName)
             {
-                if (c.Name == null) RaiseError(forName("Name"), "{0} is null!");
+                if (c.Name == null) this.RaiseError(forName("Name"), "{0} is null!");
 
                 Create<AddressValidator>().Validate(c.AddressData, forName("AddressData"));
 
-                if (c.Age == 0) RaiseError(forName("Age"), "{0} is 0!");
+                if (c.Age == 0) this.RaiseError(forName("Age"), "{0} is 0!");
 
                 Create<MoneyValidator>().Validate(c.Balance, forName("Balance"));
             }
@@ -51,13 +53,13 @@
 
             protected override void Validate(Address a, ForName forName)
             {
-                if (a == null) { RaiseError(forName("Address"), "{0} is null!"); return; }
+                if (a == null) { this.RaiseError(forName("Address"), "{0} is null!"); return; }
 
-                if (a.PostCode == null) RaiseError(forName("PostCode"), "{0} is null!");
+                if (a.PostCode == null) this.RaiseError(forName("PostCode"), "{0} is null!", PostCode);
 
                 Create<CustomerValidator>().Validate(a.Owner, forName("Owner"));
 
-                if (a.Street == null) RaiseError(forName("Street"), "{0} is null!");
+                if (a.Street == null) this.RaiseError(forName("Street"), "{0} is null!");
             }
         }
 
@@ -65,9 +67,9 @@
         {
             protected override void Validate(Money a, ForName forName)
             {
-                if (a.Amount <= 0) RaiseError(forName(), "{0} is negative!");
+                if (a.Amount <= 0) this.RaiseError(forName(), "{0} is negative!");
 
-                if (a.Amount > 10000) RaiseError(forName(), "{0} is higher than max!");
+                if (a.Amount > 10000) this.RaiseError(forName(), "{0} is higher than max!");
             }
         }
 
@@ -82,7 +84,7 @@
 
             string errors = "";
 
-            cv.OnError += (p, e) => errors += string.Format(" -- " + e + "\n", p);
+            cv.OnError += vf => errors += string.Format(" -- " + vf.ErrorMessage + "\n", vf.ParameterName);
 
             cv.Validate(cust, "cust");
 
@@ -105,11 +107,18 @@
 
             var cv = new CustomerValidator();
 
-            string errors = "";
-
-            cv.OnError += (p, e) => errors += string.Format(" -- " + e + "\n", p);
+            //Handling raise of errors
+            var failures = new List<IValidationFailure>();
+            cv.OnError += failures.Add;
 
             Parallel.Invoke(() => cv.Validate(cust, "cust"), () => cv.Validate(cust, "cust2"));
+
+
+            var x = failures.FirstOrDefault(vf => (vf as ValidationFailure).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
+            Console.WriteLine(x.ErrorMessage);
+
+            //Handle validation failure list
+            var errors = " -- " + string.Join("\r\n -- ", failures.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
             
             AssertContainsInOrder(errors,
                 " -- cust.Name is null!",

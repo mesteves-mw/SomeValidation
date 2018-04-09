@@ -4,7 +4,7 @@
 
     public abstract class AbstractValidator
     {
-        public event Action<string, string> OnError;
+        public event Action<IValidationFailure> OnError;
 
         public T Create<T>() where T : AbstractValidator, new()
         {
@@ -15,9 +15,9 @@
             return t;
         }
 
-        public void RaiseError(string propertyName, string message)
+        public void RaiseError(IValidationFailure failure)
         {
-            OnError(propertyName, message);
+            OnError(failure);
         }
     }
 
@@ -37,5 +37,4 @@
 
         protected abstract void Validate(T t, ForName forName);
     }
-
 }
