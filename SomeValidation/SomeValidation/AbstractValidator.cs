@@ -28,13 +28,13 @@
         /// </summary>
         protected delegate string ForName(string parameterName = null);
 
-        public void Validate(T t, string pname)
+        public void Validate(T t, string pname, params Guid[] ruleSet)
         {
             ForName forName = p => p != null ? pname + "." + p : pname;
 
-            this.Validate(t, forName);
+            this.Validate(t, forName, ruleSet);
         }
 
-        protected abstract void Validate(T t, ForName forName);
+        protected abstract void Validate(T t, ForName forName, params Guid[] ruleSet);
     }
 }

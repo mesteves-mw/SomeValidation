@@ -7,7 +7,7 @@
     using System.Linq;
 
     [TestFixture]
-    public class ValidatorTest
+    public class ValidatorRulesTest
     {
         public class Customer
         {
@@ -34,15 +34,20 @@
             public static readonly Guid Name = Guid.NewGuid();
             public static readonly Guid Age = Guid.NewGuid();
 
+            public static readonly Guid Rule1 = Guid.NewGuid();
+            public static readonly Guid Rule2 = Guid.NewGuid();
+
             protected override void Validate(Customer c, ForName forName, params Guid[] ruleSet)
             {
                 if (c.Name == null) this.RaiseError(forName("Name"), "{0} is null!");
 
-                Create<AddressValidator>().Validate(c.AddressData, forName("AddressData"));
+                if (ruleSet.Contains(Rule1))
+                    Create<AddressValidator>().Validate(c.AddressData, forName("AddressData"), ruleSet);
 
                 if (c.Age == 0) this.RaiseError(forName("Age"), "{0} is 0!");
 
-               Create<MoneyValidator>().Validate(c.Balance, forName("Balance"));
+                if (ruleSet.Contains(Rule2))
+                    Create<MoneyValidator>().Validate(c.Balance, forName("Balance"));
             }
         }
 
@@ -51,15 +56,20 @@
             public static readonly Guid PostCode = Guid.NewGuid();
             public static readonly Guid Street = Guid.NewGuid();
 
+            public static readonly Guid Rule1 = Guid.NewGuid();
+            public static readonly Guid Rule2 = Guid.NewGuid();
+
             protected override void Validate(Address a, ForName forName, params Guid[] ruleSet)
             {
                 if (a == null) { this.RaiseError(forName("Address"), "{0} is null!"); return; }
 
                 if (a.PostCode == null) this.RaiseError(forName("PostCode"), "{0} is null!", PostCode);
 
-                Create<CustomerValidator>().Validate(a.Owner, forName("Owner"));
+                if (ruleSet.Contains(Rule1))
+                    Create<CustomerValidator>().Validate(a.Owner, forName("Owner"));
 
-                if (a.Street == null) this.RaiseError(forName("Street"), "{0} is null!");
+                if (ruleSet.Contains(Rule2))
+                    if (a.Street == null) this.RaiseError(forName("Street"), "{0} is null!");
             }
         }
 
@@ -74,32 +84,7 @@
         }
 
         [Test]
-        public void SmokeTest()
-        {
-            var cust = new Customer();
-            cust.AddressData = new Address();
-            cust.AddressData.Owner = new Customer();
-
-            var cv = new CustomerValidator();
-
-            string errors = "";
-
-            cv.OnError += vf => errors += string.Format(" -- " + vf.ErrorMessage + "\n", vf.ParameterName);
-
-            cv.Validate(cust, "cust");
-
-            AssertContainsInOrder(errors,
-                " -- cust.Name is null!\n",
-                " -- cust.AddressData.PostCode is null!\n",
-                " -- cust.AddressData.Owner.Name is null!\n",
-                " -- cust.AddressData.Owner.AddressData.Address is null!\n",
-                " -- cust.AddressData.Owner.Age is 0!\n",
-                " -- cust.AddressData.Street is null!\n",
-                " -- cust.Age is 0!\n");
-        }
-
-        [Test]
-        public void ParallelTest()
+        public void ParallelRulesTest()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -111,34 +96,27 @@
             var failures = new List<IValidationFailure>();
             cv.OnError += failures.Add;
 
-            Parallel.Invoke(() => cv.Validate(cust, "cust"), () => cv.Validate(cust, "cust2"));
-            
-            var postCodeFailure = failures.FirstOrDefault(vf => (vf as ValidationFailure).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
-            Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
+            //Calling validate
+            Parallel.Invoke(
+                () => cv.Validate(cust, "cust", CustomerValidator.Rule1, AddressValidator.Rule2),
+                () => cv.Validate(cust, "cust2", CustomerValidator.Rule1, CustomerValidator.Rule2, AddressValidator.Rule1));
 
             //Handle validation failure list
             var errors = " -- " + string.Join("\r\n -- ", failures.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
-            
+
             AssertContainsInOrder(errors,
                 " -- cust.Name is null!",
                 " -- cust2.Name is null!",
                 " -- cust2.AddressData.PostCode is null!",
                 " -- cust.AddressData.PostCode is null!",
                 " -- cust2.AddressData.Owner.Name is null!",
-                " -- cust2.AddressData.Owner.AddressData.Address is null!",
                 " -- cust2.AddressData.Owner.Age is 0!",
-                " -- cust.AddressData.Owner.Name is null!",
-                " -- cust.AddressData.Owner.AddressData.Address is null!",
-                " -- cust.AddressData.Owner.Age is 0!",
-                " -- cust2.AddressData.Owner.Balance is negative!",
-                " -- cust2.AddressData.Street is null!",
                 " -- cust2.Age is 0!",
-                " -- cust.AddressData.Owner.Balance is negative!",
                 " -- cust.AddressData.Street is null!",
                 " -- cust.Age is 0!",
-                " -- cust.Balance is negative!");
+                " -- cust2.Balance is negative!");
         }
-        
+
         public static void AssertContainsInOrder(string input, params string[] subStrings)
         {
             foreach(string subStr in subStrings)
