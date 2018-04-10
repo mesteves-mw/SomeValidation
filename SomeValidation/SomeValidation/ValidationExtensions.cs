@@ -11,19 +11,41 @@
             validator.RaiseError(new ValidationError { ErrorMessage = errorMessage, ParameterName = parameterName, ParameterGuid = guid });
         }
 
-        public static IEnumerable<IValidationError> Validate<T>(this AbstractValidator<T> validator, T instance, string parameterName, params Guid[] ruleSet)
+        public static IEnumerable<IValidationError> Validate<T>(this AbstractValidator<T> validator, T instance, params Guid[] ruleSet)
         {
             var errors = new List<IValidationError>();
             validator.OnError += errors.Add;
 
-            validator.Validate(instance, parameterName, ruleSet);
+            validator.Validate(instance, ruleSet);
 
             return errors;
         }
 
-        public static void ValidateAndThrow<T>(this AbstractValidator<T> validator, T instance, string parameterName, params Guid[] ruleSet)
+        public static void ValidateAndThrow<T>(this AbstractValidator<T> validator, T instance, params Guid[] ruleSet)
         {
-            IEnumerable<IValidationError> errors = Validate(validator, instance, parameterName, ruleSet);
+            IEnumerable<IValidationError> errors = Validate(validator, instance, ruleSet);
+
+            throw new ValidationException(
+                "Validation failed:\r\n -- " +
+                string.Join(
+                    "\r\n -- ",
+                    errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName))),
+                errors);
+        }
+
+        public static IEnumerable<IValidationError> Validate<T>(this ParameterValidator<T> validator, string parameterName, T instance, params Guid[] ruleSet)
+        {
+            var errors = new List<IValidationError>();
+            validator.OnError += errors.Add;
+
+            validator.Validate(parameterName, instance, ruleSet);
+
+            return errors;
+        }
+
+        public static void ValidateAndThrow<T>(this ParameterValidator<T> validator, string parameterName, T instance, params Guid[] ruleSet)
+        {
+            IEnumerable<IValidationError> errors = Validate(validator, parameterName, instance, ruleSet);
             
             throw new ValidationException(
                 "Validation failed:\r\n -- " + 

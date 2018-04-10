@@ -23,20 +23,6 @@
 
     public abstract class AbstractValidator<T> : AbstractValidator
     {
-        /// <summary>
-        /// Call delegate to carry parent parameter name context. e.g. forName("MyParam") returns "parentName.MyParam".
-        /// </summary>
-        protected delegate string ForName(string parameterName = null);
-
-        public void Validate(T t, string parameterName, params Guid[] ruleSet)
-        {
-            ForName forName = p => p != null 
-                                    ? parameterName + "." + p 
-                                    : parameterName;
-
-            this.Validate(t, forName, ruleSet);
-        }
-
-        protected abstract void Validate(T t, ForName forName, params Guid[] ruleSet);
+        public abstract void Validate(T instance, params Guid[] ruleSet);
     }
 }

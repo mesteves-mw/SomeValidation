@@ -7,7 +7,7 @@
     using System.Linq;
 
     [TestFixture]
-    public class ValidatorTest
+    public class ParameterValidatorTest
     {
         public class Customer
         {
@@ -29,43 +29,43 @@
             public decimal Amount { get; set; }
         }
 
-        public class CustomerValidator : AbstractValidator<Customer>
+        public class CustomerValidator : ParameterValidator<Customer>
         {
             public static readonly ParameterInfo Name = nameof(Customer.Name);
             public static readonly ParameterInfo Age = nameof(Age);
 
-            protected override void Validate(Customer c, ForName forName, params Guid[] ruleSet)
+            protected override void Validate(ForName forName, Customer c, params Guid[] ruleSet)
             {
                 this.ShouldNotBeNull(forName(Name), c.Name);
                 
-                Create<AddressValidator>().Validate(c.AddressData, forName("AddressData"));
+                Create<AddressValidator>().Validate(forName("AddressData"), c.AddressData);
 
                 if (c.Age == 0) this.RaiseError(forName(Age), "{0} is 0!");
 
-               Create<MoneyValidator>().Validate(c.Balance, forName("Balance"));
+               Create<MoneyValidator>().Validate(forName("Balance"), c.Balance);
             }
         }
 
-        public class AddressValidator : AbstractValidator<Address>
+        public class AddressValidator : ParameterValidator<Address>
         {
             public static readonly Guid PostCode = Guid.NewGuid();
             public static readonly Guid Street = Guid.NewGuid();
 
-            protected override void Validate(Address a, ForName forName, params Guid[] ruleSet)
+            protected override void Validate(ForName forName, Address a, params Guid[] ruleSet)
             {
                 if (a == null) { this.RaiseError(forName("Address"), "{0} is null!"); return; }
 
                 if (a.PostCode == null) this.RaiseError(forName("PostCode"), "{0} is null!", PostCode);
 
-                Create<CustomerValidator>().Validate(a.Owner, forName("Owner"));
+                Create<CustomerValidator>().Validate(forName("Owner"), a.Owner);
 
                 if (a.Street == null) this.RaiseError(forName("Street"), "{0} is null!");
             }
         }
 
-        public class MoneyValidator : AbstractValidator<Money>
+        public class MoneyValidator : ParameterValidator<Money>
         {
-            protected override void Validate(Money a, ForName forName, params Guid[] ruleSet)
+            protected override void Validate(ForName forName, Money a, params Guid[] ruleSet)
             {
                 if (a.Amount <= 0) this.RaiseError(forName(), "{0} is negative!");
 
@@ -74,7 +74,7 @@
         }
 
         [Test]
-        public void SmokeTest()
+        public void ValidateTest_ParameterValidators()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -86,7 +86,7 @@
 
             cv.OnError += vf => errors += string.Format(" -- " + vf.ErrorMessage + "\n", vf.ParameterName);
 
-            cv.Validate(cust, "cust");
+            cv.Validate("cust", cust);
 
             AssertContainsInOrder(errors,
                 " -- cust.Name is null!\n",
@@ -99,7 +99,7 @@
         }
 
         [Test]
-        public void ParallelTest()
+        public void ValidateTest_ParameterValidatorsParallel()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -111,7 +111,7 @@
             var errors = new List<IValidationError>();
             cv.OnError += errors.Add;
 
-            Parallel.Invoke(() => cv.Validate(cust, "cust"), () => cv.Validate(cust, "cust2"));
+            Parallel.Invoke(() => cv.Validate("cust", cust), () => cv.Validate("cust2", cust));
             
             var postCodeFailure = errors.FirstOrDefault(vf => (vf as ValidationError).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
             Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
@@ -140,7 +140,7 @@
         }
 
         [Test]
-        public void ValidateAndThrowTest()
+        public void ValidateAndThrowTest_ParameterValidators()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -148,7 +148,7 @@
 
             var cv = new CustomerValidator();
 
-            var ex = Assert.Throws<ValidationException>(() => cv.ValidateAndThrow(cust, "cust"));
+            var ex = Assert.Throws<ValidationException>(() => cv.ValidateAndThrow("cust", cust));
 
             AssertContainsInOrder(ex.Message,
                 " -- cust.Name is null!",

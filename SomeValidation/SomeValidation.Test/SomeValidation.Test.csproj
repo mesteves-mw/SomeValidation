@@ -51,8 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ValidatorRulesTest.cs" />
-    <Compile Include="ValidatorTest.cs" />
+    <Compile Include="AbstractTValidatorTest.cs" />
+    <Compile Include="ParameterValidatorRulesTest.cs" />
+    <Compile Include="ParameterValidatorTest.cs" />
+    <Compile Include="AbstractValidatorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
