@@ -4,7 +4,7 @@
     using System;
 
     [TestFixture]
-    public class AbstractTValidatorTest
+    public class AbstractValidatorTTest
     {
         public class Customer
         {

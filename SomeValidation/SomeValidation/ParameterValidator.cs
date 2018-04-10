@@ -23,26 +23,21 @@
 
         public void Validate(ParameterInfo parameter, T instance, params Guid[] ruleSet)
         {
-            ForName forName = p =>
-            {
-                if (parameter == null)
-                    return p != null
-                            ? new ParameterInfoNode(p)
-                            : null;
-
-                if (parameter is ParameterInfoNode parameterNode)
-                    return p != null 
-                            ? parameterNode.AddNext(p) 
-                            : parameterNode;
-                else
-                    return p != null 
-                            ? new ParameterInfoNode(parameter).AddNext(p) 
-                            : new ParameterInfoNode(parameter);
-            };
+            ForName forName = p => ParameterInfoNode.ChainParameters(parameter, p);
 
             this.Validate(forName, instance, ruleSet);
         }
-        
+
         protected abstract void Validate(ForName forName, T instance, params Guid[] ruleSet);
+
+        public void RaiseError(IParameterInfo parameter, string errorMessage)
+        {
+            this.RaiseError(new ParameterValidationError(parameter, errorMessage));
+        }
+
+        public override void RaiseError(object parameter, string errorMessage)
+        {
+            this.RaiseError(parameter as IParameterInfo, errorMessage);
+        }
     }
 }

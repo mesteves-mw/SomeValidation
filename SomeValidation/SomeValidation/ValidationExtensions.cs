@@ -6,21 +6,6 @@
 
     public static class ValidationExtensions
     {
-        public static void RaiseError(this AbstractValidator validator, string parameterName, string errorMessage)
-        {
-            validator.RaiseError(new ValidationError(parameterName, errorMessage));
-        }
-
-        public static void RaiseError<T>(this StringParameterValidator<T> validator, string parameterName, string errorMessage)
-        {
-            validator.RaiseError(new ValidationError(parameterName, errorMessage));
-        }
-
-        public static void RaiseError<T>(this ParameterValidator<T> validator, IParameterInfo parameter, string errorMessage)
-        {
-            validator.RaiseError(new ParameterValidationError(parameter, errorMessage));
-        }
-
         public static IEnumerable<IValidationError> Validate<T>(this AbstractValidator<T> validator, T instance, params Guid[] ruleSet)
         {
             var errors = new List<IValidationError>();
@@ -87,16 +72,10 @@
                 errors);
         }
 
-        public static void ShouldNotBeNull(this AbstractValidator validator, string parameterName, string value)
+        public static void ShouldNotBeNull(this AbstractValidator validator, object parameterName, string value)
         {
             if (value == null)
                 validator.RaiseError(parameterName, "{0} is null!");
-        }
-
-        public static void ShouldNotBeNull<T>(this ParameterValidator<T> validator, IParameterInfo parameter, string value)
-        {
-            if (value == null)
-                validator.RaiseError(parameter, "{0} is null!");
-        }
+        }        
     }
 }

@@ -19,6 +19,16 @@
         {
             OnError(failure);
         }
+
+        public virtual void RaiseError(string parameterName, string errorMessage)
+        {
+            this.RaiseError(new ValidationError(parameterName, errorMessage));
+        }
+
+        public virtual void RaiseError(object parameterName, string errorMessage)
+        {
+            this.RaiseError(parameterName as string, errorMessage);
+        }
     }
 
     public abstract class AbstractValidator<T> : AbstractValidator

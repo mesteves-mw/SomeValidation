@@ -4,7 +4,7 @@ namespace SomeValidation
 {
     public class ParameterInfoNode : ParameterInfo, IParameterInfo
     {
-        public ParameterInfoNode(string parameterName) 
+        public ParameterInfoNode(string parameterName)
             : base(parameterName)
         {
         }
@@ -24,7 +24,7 @@ namespace SomeValidation
 
         public override Guid Guid { get; }
         public override string ShortName { get; }
-        public string Name
+        public override string Name
         {
             get
             {
@@ -39,11 +39,28 @@ namespace SomeValidation
                 return paramStr;
             }
         }
-                                
+
 
         public ParameterInfoNode Previous { get; private set; }
         public ParameterInfoNode Next { get; private set; }
         public bool HasPrevious => this.Previous != null;
         public bool HasNext => this.Next != null;
+
+        public static ParameterInfoNode ChainParameters(ParameterInfo parameter, ParameterInfo p)
+        {
+            if (parameter == null)
+                return p != null
+                        ? new ParameterInfoNode(p)
+                        : null;
+
+            if (parameter is ParameterInfoNode parameterNode)
+                return p != null
+                        ? parameterNode.AddNext(p)
+                        : parameterNode;
+            else
+                return p != null
+                        ? new ParameterInfoNode(parameter).AddNext(p)
+                        : new ParameterInfoNode(parameter);
+        }
     }
 }

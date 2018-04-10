@@ -2,7 +2,7 @@
 
 namespace SomeValidation
 {
-    public class ParameterInfo
+    public class ParameterInfo : IParameterInfo
     {
         protected ParameterInfo() { }
         public ParameterInfo(string parameterName)
@@ -13,6 +13,8 @@ namespace SomeValidation
 
         public virtual Guid Guid { get; }
         public virtual string ShortName { get; }
+
+        public virtual string Name => ShortName;
 
         public override int GetHashCode()
         {

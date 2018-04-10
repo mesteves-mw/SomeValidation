@@ -37,9 +37,9 @@
             public static readonly ParameterInfo Balance =      Param(nameof(Customer.Balance));
 
             protected override void Validate(ForName forName, Customer c, params Guid[] ruleSet)
-            {
+            {               
                 this.ShouldNotBeNull(forName(Name), c.Name);
-                
+
                 Create<AddressValidator>().Validate(forName(AddressData), c.AddressData);
 
                 if (c.Age == 0) this.RaiseError(forName(Age), "{0} is 0!");
