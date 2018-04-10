@@ -2,7 +2,7 @@
 {
     public interface IValidationError
     {
-        string ParameterName { get; set; }
-        string ErrorMessage { get; set; }
+        string ParameterName { get; }
+        string ErrorMessage { get; }
     }
 }

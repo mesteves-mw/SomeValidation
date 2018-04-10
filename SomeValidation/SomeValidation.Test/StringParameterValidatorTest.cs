@@ -7,7 +7,7 @@
     using System.Linq;
 
     [TestFixture]
-    public class ParameterValidatorTest
+    public class StringParameterValidatorTest
     {
         public class Customer
         {
@@ -29,45 +29,38 @@
             public decimal Amount { get; set; }
         }
 
-        public class CustomerValidator : ParameterValidator<Customer>
+        public class CustomerValidator : StringParameterValidator<Customer>
         {
-            public static readonly ParameterInfo Name =         Param(nameof(Customer.Name));
-            public static readonly ParameterInfo AddressData =  Param(nameof(Customer.AddressData));
-            public static readonly ParameterInfo Age =          Param(nameof(Customer.Age));
-            public static readonly ParameterInfo Balance =      Param(nameof(Customer.Balance));
+            public static readonly string Name = nameof(Customer.Name);
+            public static readonly string Age = nameof(Age);
 
             protected override void Validate(ForName forName, Customer c, params Guid[] ruleSet)
             {
                 this.ShouldNotBeNull(forName(Name), c.Name);
                 
-                Create<AddressValidator>().Validate(forName(AddressData), c.AddressData);
+                Create<AddressValidator>().Validate(forName("AddressData"), c.AddressData);
 
                 if (c.Age == 0) this.RaiseError(forName(Age), "{0} is 0!");
 
-               Create<MoneyValidator>().Validate(forName(Balance), c.Balance);
+               Create<MoneyValidator>().Validate(forName("Balance"), c.Balance);
             }
         }
 
-        public class AddressValidator : ParameterValidator<Address>
+        public class AddressValidator : StringParameterValidator<Address>
         {
-            public static readonly ParameterInfo Address1 = Param(nameof(Address));
-            public static readonly ParameterInfo PostCode = Param(nameof(Address.PostCode));
-            public static readonly ParameterInfo Owner = Param(nameof(Address.Owner));
-            public static readonly ParameterInfo Street = Param(nameof(Address.Street));
-
             protected override void Validate(ForName forName, Address a, params Guid[] ruleSet)
             {
-                if (a == null) { this.RaiseError(forName(Address1), "{0} is null!"); return; }
+                if (a == null) { this.RaiseError(forName("Address"), "{0} is null!"); return; }
 
-                if (a.PostCode == null) this.RaiseError(forName(PostCode), "{0} is null!");
+                if (a.PostCode == null) this.RaiseError(forName("PostCode"), "{0} is null!");
 
-                Create<CustomerValidator>().Validate(forName(Owner), a.Owner);
+                Create<CustomerValidator>().Validate(forName("Owner"), a.Owner);
 
-                if (a.Street == null) this.RaiseError(forName(Street), "{0} is null!");
+                if (a.Street == null) this.RaiseError(forName("Street"), "{0} is null!");
             }
         }
 
-        public class MoneyValidator : ParameterValidator<Money>
+        public class MoneyValidator : StringParameterValidator<Money>
         {
             protected override void Validate(ForName forName, Money a, params Guid[] ruleSet)
             {
@@ -78,7 +71,7 @@
         }
 
         [Test]
-        public void ValidateTest_ParameterValidators()
+        public void ValidateTest_StringParameterValidators()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -103,7 +96,7 @@
         }
 
         [Test]
-        public void ValidateTest_ParameterValidatorsParallel()
+        public void ValidateTest_StringParameterValidatorsParallel()
         {
             var cust = new Customer();
             cust.AddressData = new Address();
@@ -116,9 +109,6 @@
             cv.OnError += errors.Add;
 
             Parallel.Invoke(() => cv.Validate("cust", cust), () => cv.Validate("cust2", cust));
-            
-            //var postCodeFailure = errors.FirstOrDefault(vf => (vf as ValidationError).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
-            //Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
 
             //Handle validation failure list
             var errorMessage = " -- " + string.Join("\r\n -- ", errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
@@ -144,7 +134,7 @@
         }
 
         [Test]
-        public void ValidateAndThrowTest_ParameterValidators()
+        public void ValidateAndThrowTest_StringParameterValidators()
         {
             var cust = new Customer();
             cust.AddressData = new Address();

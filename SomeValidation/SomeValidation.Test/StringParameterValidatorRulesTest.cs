@@ -7,7 +7,7 @@
     using System.Linq;
 
     [TestFixture]
-    public class ParameterValidatorRulesTest
+    public class StringParameterValidatorRulesTest
     {
         public class Customer
         {
@@ -29,11 +29,8 @@
             public decimal Amount { get; set; }
         }
 
-        public class CustomerValidator : ParameterValidator<Customer>
+        public class CustomerValidator : StringParameterValidator<Customer>
         {
-            public static readonly Guid Name = Guid.NewGuid();
-            public static readonly Guid Age = Guid.NewGuid();
-
             public static readonly Guid Rule1 = Guid.NewGuid();
             public static readonly Guid Rule2 = Guid.NewGuid();
 
@@ -51,11 +48,8 @@
             }
         }
 
-        public class AddressValidator : ParameterValidator<Address>
+        public class AddressValidator : StringParameterValidator<Address>
         {
-            public static readonly Guid PostCode = Guid.NewGuid();
-            public static readonly Guid Street = Guid.NewGuid();
-
             public static readonly Guid Rule1 = Guid.NewGuid();
             public static readonly Guid Rule2 = Guid.NewGuid();
 
@@ -63,7 +57,7 @@
             {
                 if (a == null) { this.RaiseError(forName("Address"), "{0} is null!"); return; }
 
-                if (a.PostCode == null) this.RaiseError(forName("PostCode"), "{0} is null!", PostCode);
+                if (a.PostCode == null) this.RaiseError(forName("PostCode"), "{0} is null!");
 
                 if (ruleSet.Contains(Rule1))
                     Create<CustomerValidator>().Validate(forName("Owner"), a.Owner);
@@ -73,7 +67,7 @@
             }
         }
 
-        public class MoneyValidator : ParameterValidator<Money>
+        public class MoneyValidator : StringParameterValidator<Money>
         {
             protected override void Validate(ForName forName, Money value, params Guid[] ruleSet)
             {
@@ -84,7 +78,7 @@
         }
 
         [Test]
-        public void ValidateTest_ParameterValidatorsParallelRules()
+        public void ValidateTest_StringParameterValidatorsParallelRules()
         {
             var cust = new Customer();
             cust.AddressData = new Address();

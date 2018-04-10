@@ -39,7 +39,7 @@
             }
         }
 
-        public class AddressValidator : ParameterValidator<Address>
+        public class AddressValidator : StringParameterValidator<Address>
         {
             protected override void Validate(ForName forName, Address a, params Guid[] ruleSet)
             {
@@ -51,7 +51,7 @@
             }
         }
 
-        public class MoneyValidator : ParameterValidator<Money>
+        public class MoneyValidator : StringParameterValidator<Money>
         {
             protected override void Validate(ForName forName, Money instance, params Guid[] ruleSet)
             {
@@ -79,6 +79,24 @@
                 " -- Name is null!\n",
                 " -- AddressData.PostCode is null!\n",
                 " -- AddressData.Street is null!\n",
+                " -- Age is 0!",
+                " -- Balance is negative!");
+        }
+
+        [Test]
+        public void ValidateAndThrowTest_AbstractValidatorWithParameterValidators()
+        {
+            var cust = new Customer();
+            cust.AddressData = new Address();
+
+            var cv = new CustomerValidator();
+
+            var ex = Assert.Throws<ValidationException>(() => cv.ValidateAndThrow(cust));
+
+            AssertContainsInOrder(ex.Message,
+                " -- Name is null!",
+                " -- AddressData.PostCode is null!",
+                " -- AddressData.Street is null!",
                 " -- Age is 0!",
                 " -- Balance is negative!");
         }

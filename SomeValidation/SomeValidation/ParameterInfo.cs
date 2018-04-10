@@ -4,31 +4,39 @@ namespace SomeValidation
 {
     public class ParameterInfo
     {
-        private ParameterInfo() { }
-        private ParameterInfo(string parameterName)
+        protected ParameterInfo() { }
+        public ParameterInfo(string parameterName)
         {
-            this.Name = parameterName;
+            this.ShortName = parameterName ?? throw new ArgumentNullException(nameof(parameterName));
             this.Guid = Guid.NewGuid();
         }
 
-        public Guid Guid { get; }
-        public string Name { get; }
-        //public ParameterInfo Parent { get; set; }
-        //public ParameterInfo Child { get; set; }
-        //public bool HasParent => this.Parent == null;
-        //public bool HasChild => this.Child == null;
+        public virtual Guid Guid { get; }
+        public virtual string ShortName { get; }
 
-        public static implicit operator ParameterInfo(string parameterName)
+        public override int GetHashCode()
         {
-            if (parameterName == null)
-                throw new ArgumentNullException(nameof(parameterName));
-
-            return new ParameterInfo(parameterName);
+            return this.Guid.GetHashCode();
         }
 
-        public static implicit operator string(ParameterInfo parameterInfo)
+        public override bool Equals(object obj)
         {
-            return parameterInfo.Name;
+            return !ReferenceEquals(null, obj) && obj.GetType() == this.GetType() && this.Equals((ParameterInfo)obj);
+        }
+
+        public bool Equals(ParameterInfo parameter)
+        {
+            return !ReferenceEquals(parameter, null) && this.Guid == parameter.Guid;
+        }
+
+        public static bool operator ==(ParameterInfo left, ParameterInfo right)
+        {
+            return ReferenceEquals(left, right) || !ReferenceEquals(left, null) && left.Equals(right);
+        }
+
+        public static bool operator !=(ParameterInfo left, ParameterInfo right)
+        {
+            return !ReferenceEquals(left, right) && !ReferenceEquals(left, null) && !left.Equals(right);
         }
     }
 }

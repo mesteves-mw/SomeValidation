@@ -52,8 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractTValidatorTest.cs" />
-    <Compile Include="ParameterValidatorRulesTest.cs" />
+    <Compile Include="StringParameterValidatorRulesTest.cs" />
     <Compile Include="ParameterValidatorTest.cs" />
+    <Compile Include="StringParameterValidatorTest.cs" />
     <Compile Include="AbstractValidatorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

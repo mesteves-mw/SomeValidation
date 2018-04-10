@@ -41,10 +41,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractValidator.cs" />
+    <Compile Include="IParameterInfo.cs" />
     <Compile Include="ParameterInfo.cs" />
+    <Compile Include="ParameterInfoNode.cs" />
+    <Compile Include="StringParameterValidator.cs" />
+    <Compile Include="ParameterValidator.cs" />
+    <Compile Include="ParameterValidationError.cs" />
     <Compile Include="ValidationException.cs" />
     <Compile Include="ValidationExtensions.cs" />
-    <Compile Include="ValidationFailure.cs" />
+    <Compile Include="ValidationError.cs" />
     <Compile Include="IValidationFailure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
