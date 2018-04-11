@@ -17,7 +17,7 @@
 
         public void RaiseError(IValidationError failure)
         {
-            OnError(failure);
+            OnError?.Invoke(failure);
         }
 
         public virtual void RaiseError(string parameterName, string errorMessage)
