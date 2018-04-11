@@ -28,7 +28,7 @@ namespace SomeValidation
 
         public bool Equals(ParameterInfo parameter)
         {
-            return !ReferenceEquals(parameter, null) && this.Guid == parameter.Guid;
+            return !ReferenceEquals(parameter, null) && this.GetHashCode() == parameter.GetHashCode();
         }
 
         public static bool operator ==(ParameterInfo left, ParameterInfo right)
@@ -39,6 +39,11 @@ namespace SomeValidation
         public static bool operator !=(ParameterInfo left, ParameterInfo right)
         {
             return !ReferenceEquals(left, right) && !ReferenceEquals(left, null) && !left.Equals(right);
+        }
+
+        public static ParameterInfoNode operator /(ParameterInfo left, ParameterInfo right)
+        {
+            return ParameterInfoNode.ChainParameters(left, right);
         }
     }
 }

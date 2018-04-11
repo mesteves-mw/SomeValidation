@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SomeValidation
 {
@@ -61,6 +62,57 @@ namespace SomeValidation
                 return p != null
                         ? new ParameterInfoNode(parameter).AddNext(p)
                         : new ParameterInfoNode(parameter);
+        }
+
+        public List<Guid> Guids
+        {
+            get
+            {
+                var current = this;
+                var guids = new List<Guid> { current.Guid };
+                while (current.HasPrevious)
+                {
+                    current = current.Previous;
+                    guids.Insert(0, current.Guid);
+                }
+
+                return guids;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            int res = 1;
+            foreach (var guid in Guids)
+            {
+                res = res * 31 + (guid == null ? 0 : guid.GetHashCode());
+            }
+            return res;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return !ReferenceEquals(null, obj) && obj.GetType() == this.GetType() && this.Equals((ParameterInfoNode)obj);
+        }
+
+        public bool Equals(ParameterInfoNode parameter)
+        {
+            return !ReferenceEquals(parameter, null) && this.GetHashCode() == parameter.GetHashCode();
+        }
+
+        public static bool operator ==(ParameterInfoNode left, ParameterInfoNode right)
+        {
+            return ReferenceEquals(left, right) || !ReferenceEquals(left, null) && left.Equals(right);
+        }
+
+        public static bool operator !=(ParameterInfoNode left, ParameterInfoNode right)
+        {
+            return !ReferenceEquals(left, right) && !ReferenceEquals(left, null) && !left.Equals(right);
+        }
+
+        public static ParameterInfoNode operator /(ParameterInfoNode left, ParameterInfo right)
+        {
+            return ChainParameters(left, right);
         }
     }
 }

@@ -115,10 +115,29 @@
             var errors = new List<IValidationError>();
             cv.OnError += errors.Add;
 
-            Parallel.Invoke(() => cv.Validate("cust", cust), () => cv.Validate("cust2", cust));
-            
+            var custParamInfo = new ParameterInfo("cust");
+
+            Parallel.Invoke(() => cv.Validate(custParamInfo, cust), () => cv.Validate("cust2", cust));
+
             //var postCodeFailure = errors.FirstOrDefault(vf => (vf as ValidationError).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
             //Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
+
+            bool matchCustAddressOwnerName = false;
+
+            foreach (var error in errors)
+            { 
+                switch ((error as ParameterValidationError)?.Parameter)
+                {
+                    case ParameterInfo pi when pi == CustomerValidator.Name:
+                        break;
+
+                    case ParameterInfo pi when pi == custParamInfo / CustomerValidator.AddressData / AddressValidator.Owner / CustomerValidator.Name:
+                        matchCustAddressOwnerName = true;
+                        break;
+                }
+            }
+
+            Assert.That(matchCustAddressOwnerName, $"Failed to {matchCustAddressOwnerName}");
 
             //Handle validation failure list
             var errorMessage = " -- " + string.Join("\r\n -- ", errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
