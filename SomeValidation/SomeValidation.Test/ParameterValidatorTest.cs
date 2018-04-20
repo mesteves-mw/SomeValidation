@@ -119,26 +119,6 @@
 
             Parallel.Invoke(() => cv.Validate(custParamInfo, cust), () => cv.Validate("cust2", cust));
 
-            //var postCodeFailure = errors.FirstOrDefault(vf => (vf as ValidationError).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
-            //Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
-
-            bool matchCustAddressOwnerName = false;
-
-            foreach (var error in errors)
-            { 
-                switch ((error as ParameterValidationError)?.Parameter)
-                {
-                    case ParameterInfo pi when pi == CustomerValidator.Name:
-                        break;
-
-                    case ParameterInfo pi when pi == custParamInfo / CustomerValidator.AddressData / AddressValidator.Owner / CustomerValidator.Name:
-                        matchCustAddressOwnerName = true;
-                        break;
-                }
-            }
-
-            Assert.That(matchCustAddressOwnerName, $"Failed to {matchCustAddressOwnerName}");
-
             //Handle validation failure list
             var errorMessage = " -- " + string.Join("\r\n -- ", errors.Select(vf => string.Format(vf.ErrorMessage, vf.ParameterName)));
             
@@ -160,6 +140,68 @@
                 " -- cust.AddressData.Street is null!",
                 " -- cust.Age is 0!",
                 " -- cust.Balance is negative!");
+        }
+
+        [Test]
+        public void ValidateTest_ParameterValidatorsParameterMatching()
+        {
+            var cust = new Customer();
+            cust.AddressData = new Address();
+            cust.AddressData.Owner = new Customer();
+
+            var cv = new CustomerValidator();
+
+            //Handling raise of errors
+            var errors = new List<IValidationError>();
+            cv.OnError += errors.Add;
+
+            var custParamInfo = new ParameterInfo("cust");
+
+            cv.Validate(custParamInfo, cust);
+
+            //var postCodeFailure = errors.FirstOrDefault(vf => (vf as ValidationError).ParameterGuid.GetValueOrDefault() == AddressValidator.PostCode);
+            //Assert.That(postCodeFailure.ParameterName, Contains.Substring("PostCode"));
+
+            ParameterInfo pi1 = null;
+            ParameterInfo pi2 = null;
+            ParameterInfo pi3 = null;
+            ParameterInfo pi4 = null;
+            ParameterInfo pi5 = null;
+
+            foreach (var error in errors)
+            {
+                switch ((error as ParameterValidationError)?.Parameter)
+                {
+                    case ParameterInfo pi when pi >= custParamInfo / CustomerValidator.Name:
+                        pi1 = pi;
+                        break;
+
+                    case ParameterInfo pi when pi == custParamInfo / CustomerValidator.AddressData / AddressValidator.Owner / CustomerValidator.Name:
+                        pi2 = pi;
+                        break;
+
+                    case ParameterInfo pi when pi >= CustomerValidator.AddressData / AddressValidator.Street:
+                        pi3 = pi;
+                        break;
+
+                    case ParameterInfo pi when AddressValidator.Owner / CustomerValidator.Balance <= pi:
+                        pi4 = pi;
+                        break;
+
+                    case ParameterInfo pi when AddressValidator.Owner <= pi:
+                        pi5 = pi;
+                        break;
+                }
+            }
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(pi1 != null, "Failed to match {0} => {1}", pi1?.Name, CustomerValidator.Name);
+                Assert.That(pi2 != null, "Failed to match {0} == {1}", pi2?.Name, (custParamInfo / CustomerValidator.AddressData / AddressValidator.Owner / CustomerValidator.Name).Name);
+                Assert.That(pi3 != null, "Failed to match {0} >= {1}", pi3?.Name, (AddressValidator.Street / CustomerValidator.AddressData).Name);
+                Assert.That(pi4 != null, "Failed to match {0} <= {1}", (AddressValidator.Owner / CustomerValidator.Balance).Name, pi4?.Name);
+                Assert.That(pi5 == null, "Failed incorrect match {0} <= {1}", (AddressValidator.Owner).Name, pi5?.Name);
+            });
         }
 
         [Test]

@@ -97,7 +97,30 @@ namespace SomeValidation
 
         public bool Equals(ParameterInfoNode parameter)
         {
-            return !ReferenceEquals(parameter, null) && this.GetHashCode() == parameter.GetHashCode();
+            bool result = !ReferenceEquals(parameter, null);
+
+            if (result)
+            {
+                var leftGuids = this.Guids;
+                var rightGuids = parameter.Guids;
+
+                result = leftGuids.Count == rightGuids.Count;
+
+                if (result)
+                {
+                    for (int i = leftGuids.Count - 1; i >= 0; i--)
+                    {
+                        result = result && leftGuids[i] == rightGuids[i];
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public new bool Equals(ParameterInfo parameter)
+        {
+            return this.Equals(parameter as ParameterInfoNode ?? new ParameterInfoNode(parameter));
         }
 
         public static bool operator ==(ParameterInfoNode left, ParameterInfoNode right)

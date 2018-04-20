@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SomeValidation
 {
@@ -28,7 +29,14 @@ namespace SomeValidation
 
         public bool Equals(ParameterInfo parameter)
         {
-            return !ReferenceEquals(parameter, null) && this.GetHashCode() == parameter.GetHashCode();
+            if (ReferenceEquals(parameter, null)) return false;
+
+            if (parameter is ParameterInfoNode parameterInforNode)
+            {
+                return parameterInforNode.Equals(this);
+            }
+
+            return this.Guid == parameter.Guid;
         }
 
         public static bool operator ==(ParameterInfo left, ParameterInfo right)
@@ -44,6 +52,29 @@ namespace SomeValidation
         public static ParameterInfoNode operator /(ParameterInfo left, ParameterInfo right)
         {
             return ParameterInfoNode.ChainParameters(left, right);
+        }
+
+        public static bool operator <=(ParameterInfo left, ParameterInfo right)
+        {
+            bool result = ReferenceEquals(left, right) || !ReferenceEquals(left, null);
+
+            if (result)
+            {
+                var leftGuids = (left as ParameterInfoNode)?.Guids ?? new List<Guid> {left.Guid};
+                var rightGuids = (right as ParameterInfoNode)?.Guids ?? new List<Guid> {right.Guid};
+
+                for (int i = 1; i <= leftGuids.Count; i++)
+                {
+                    result = result && leftGuids[leftGuids.Count - i] == rightGuids[rightGuids.Count - i];
+                }
+            }
+
+            return  result;
+        }
+
+        public static bool operator >=(ParameterInfo left, ParameterInfo right)
+        {
+            return right <= left;
         }
     }
 }
