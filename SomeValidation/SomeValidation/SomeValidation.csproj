@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,6 +45,17 @@
     <Compile Include="IParameterInfo.cs" />
     <Compile Include="ParameterInfo.cs" />
     <Compile Include="ParameterInfoNode.cs" />
+    <Compile Include="Statements\IBeStatementExtensions.cs" />
+    <Compile Include="Statements\BeStatement.cs" />
+    <Compile Include="Statements\ICollectionIBeStatementExtensions.cs" />
+    <Compile Include="Statements\IComparableIBeStatementExtensions.cs" />
+    <Compile Include="Statements\IEquatableIBeStatementExtensions.cs" />
+    <Compile Include="Statements\IBeStatement.cs" />
+    <Compile Include="Statements\IStatement.cs" />
+    <Compile Include="IValidator.cs" />
+    <Compile Include="Statements\IValidatorExtensions.cs" />
+    <Compile Include="Statements\IStatementExtensions.cs" />
+    <Compile Include="Statements\StringIBeStatementExtensions.cs" />
     <Compile Include="StringParameterValidator.cs" />
     <Compile Include="ParameterValidator.cs" />
     <Compile Include="ParameterValidationError.cs" />

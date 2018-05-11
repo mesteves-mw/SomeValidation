@@ -1,4 +1,6 @@
-﻿namespace SomeValidation.Test
+﻿using SomeValidation.Statements;
+
+namespace SomeValidation.Test
 {
     using NUnit.Framework;
     using System;
@@ -29,7 +31,7 @@
             public decimal Amount { get; set; }
         }
 
-        public class CustomerValidator : ParameterValidator<Customer>
+        public class CustomerValidator : ParameterValidator<Customer>, IValidator
         {
             public static readonly ParameterInfo Name =         Param(nameof(Customer.Name));
             public static readonly ParameterInfo AddressData =  Param(nameof(Customer.AddressData));
@@ -37,8 +39,9 @@
             public static readonly ParameterInfo Balance =      Param(nameof(Customer.Balance));
 
             protected override void Validate(ForName forName, Customer c, params Guid[] ruleSet)
-            {               
-                this.ShouldNotBeNull(forName(Name), c.Name);
+            {          
+                this.ShouldNotBe(forName(Name), c.Name).Null();
+                //this.ShouldNotBeNull(forName(Name), c.Name);
 
                 Create<AddressValidator>().Validate(forName(AddressData), c.AddressData);
 
@@ -48,7 +51,7 @@
             }
         }
 
-        public class AddressValidator : ParameterValidator<Address>
+        public class AddressValidator : ParameterValidator<Address>, IValidator
         {
             public static readonly ParameterInfo Address1 = Param(nameof(Address));
             public static readonly ParameterInfo PostCode = Param(nameof(Address.PostCode));
@@ -67,10 +70,14 @@
             }
         }
 
-        public class MoneyValidator : ParameterValidator<Money>
+        public class MoneyValidator : ParameterValidator<Money>, IValidator
         {
             protected override void Validate(ForName forName, Money a, params Guid[] ruleSet)
             {
+                this.ShouldNotBe(forName(), a.Amount)
+                    .LessThanOrEqualTo(0)
+                    .GreaterThan(-10000);
+
                 if (a.Amount <= 0) this.RaiseError(forName(), "{0} is negative!");
 
                 if (a.Amount > 10000) this.RaiseError(forName(), "{0} is higher than max!");
