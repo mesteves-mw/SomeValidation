@@ -76,7 +76,7 @@
         public static void ShouldNotBeNull(this AbstractValidator validator, object parameterName, string value)
         {
             if (value == null)
-                validator.RaiseError(parameterName, "{0} is null!");
+                validator.RaiseError(parameterName, "@parameterName is null!");
         }        
     }
 }

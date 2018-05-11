@@ -4,14 +4,20 @@
 
     public class ValidationError : IValidationError
     {
+        private string _errorMessageTemplate;
+
         public ValidationError(string parameterName, string errorMessage)
         {
             this.ParameterName = parameterName;
-            this.ErrorMessage = errorMessage;
+            this._errorMessageTemplate = errorMessage;
         }
 
-        public Guid? ParameterGuid { get; set; }
         public string ParameterName { get; set; }
-        public string ErrorMessage { get; set; }
+
+        public string ErrorMessage
+        {
+            get => _errorMessageTemplate.Replace("@parameterName", this.ParameterName);
+            set => _errorMessageTemplate = value;
+        }
     }
 }

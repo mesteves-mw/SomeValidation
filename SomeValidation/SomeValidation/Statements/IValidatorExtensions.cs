@@ -10,7 +10,7 @@
                 Param = param,
                 Value = instance,
                 Negation = false,
-                Message = messageOverride ?? "{{0}} should be {0}."
+                Message = messageOverride ?? "@parameterName should be @constraintPredicator."
             };
         }
 
@@ -22,7 +22,7 @@
                 Param = param,
                 Value = instance,
                 Negation = true,
-                Message = messageOverride ?? "{{0}} should not be {0}."
+                Message = messageOverride ?? "@parameterName should not be @constraintPredicator."
             };
         }
 
@@ -34,7 +34,7 @@
                 Param = param,
                 Value = instance,
                 Negation = true,
-                Message = messageOverride ?? "{{0}} cannot be {0}."
+                Message = messageOverride ?? "@parameterName cannot be @constraintPredicator."
             };
         }
     }

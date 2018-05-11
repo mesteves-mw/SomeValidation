@@ -1,12 +1,8 @@
-﻿using SomeValidation.Statements;
-
-namespace SomeValidation.Test
+﻿namespace SomeValidation.Test
 {
     using NUnit.Framework;
     using System;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
+    using SomeValidation.Statements;
 
     [TestFixture]
     public class ParameterValidatorWithStatementsTest

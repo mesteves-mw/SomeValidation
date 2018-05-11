@@ -4,11 +4,11 @@ namespace SomeValidation.Statements
 {
     public static class IStatementExtensions
     {
-        public static IBeStatement<T> ApplyConstraint<T>(this IBeStatement<T> stmt, bool constraintCheck, string constraintMessage)
+        public static IBeStatement<T> ApplyConstraint<T>(this IBeStatement<T> stmt, bool constraintCheck, string constraintPredicator)
         {
             if (!stmt.Negation ^ constraintCheck)
             {
-                stmt.Validator.RaiseError(stmt.Param, string.Format(stmt.Message, constraintMessage));
+                stmt.Validator.RaiseError(stmt.Param, stmt.Message.Replace("@constraintPredicator", constraintPredicator));
                 stmt.ErrorsRaised++;
             }
 

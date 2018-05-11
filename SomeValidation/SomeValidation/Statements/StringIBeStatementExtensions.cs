@@ -24,7 +24,7 @@ namespace SomeValidation.Statements
             {
                 Validator =  ssb.Validator,
                 Param = ssb.Param,
-                Message = ssb.Message.Replace("{{0}}", "{{0}} length"),
+                Message = ssb.Message.Replace("@parameterName", "@parameterName length"),
                 Negation = ssb.Negation,
                 Value = ssb.Value?.Length ?? 0
             };
