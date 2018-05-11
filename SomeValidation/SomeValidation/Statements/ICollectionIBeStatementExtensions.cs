@@ -17,7 +17,7 @@ namespace SomeValidation.Statements
             return ssb.ApplyConstraint(ssb.Value == null || ssb.Value.Count == 0, "null or empty");
         }
 
-        public static IBeStatement<T> EquivalentTo<T,TK>(this IBeStatement<T> ssb, ICollection<TK> expected) where T : ICollection<TK>
+        public static IBeStatement<T> EquivalentTo<T,TK>(this IBeStatement<T> ssb, ICollection<TK> expected) where T : ICollection, ICollection<TK>
         {
             return ssb.ApplyConstraint(ssb.Value.SequenceEqual(expected), "equivalent to (" + String.Join(",", expected) + ")");
         }

@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractValidatorTTest.cs" />
+    <Compile Include="ParameterValidatorWithStatementsTest.cs" />
     <Compile Include="StatementsTest.cs" />
     <Compile Include="StringParameterValidatorRulesTest.cs" />
     <Compile Include="ParameterValidatorTest.cs" />

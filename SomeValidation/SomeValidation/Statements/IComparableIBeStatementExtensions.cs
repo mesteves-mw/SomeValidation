@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace SomeValidation.Statements
 {
@@ -37,6 +38,16 @@ namespace SomeValidation.Statements
         public static IBeStatement<T> AtLeastAndAtMost<T>(this IBeStatement<T> ssb, T least, T most) where T : IComparable<T>
         {
             return ssb.ApplyConstraint(ssb.Value.CompareTo(least) >= 0 && ssb.Value.CompareTo(most) <= 0, "at least " + least + " and at most " + most);
+        }
+
+        public static IBeStatement<T> Negative<T>(this IBeStatement<T> ssb) where T : IComparable, IConvertible
+        {
+            return ssb.ApplyConstraint(ssb.Value.CompareTo(default(T)) < 0, "negative");
+        }
+
+        public static IBeStatement<T> Positive<T>(this IBeStatement<T> ssb) where T : IComparable<T>, IComparable, IConvertible
+        {
+            return ssb.ApplyConstraint(ssb.Value.CompareTo(default(T)) > 0, "positive");
         }
     }
 }

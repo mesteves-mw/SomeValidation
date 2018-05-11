@@ -8,5 +8,10 @@ namespace SomeValidation.Statements
         {
             return ssb.ApplyConstraint(ssb.Value.Equals(expected), "equal to " + expected);
         }
+
+        public static IBeStatement<T> Zero<T>(this IBeStatement<T> ssb) where T : IEquatable<T>, IConvertible
+        {
+            return ssb.ApplyConstraint(ssb.Value.Equals(0), "zero");
+        }
     }
 }
