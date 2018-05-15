@@ -42,6 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractValidator.cs" />
+    <Compile Include="InlineValidation\IInlineValidator.cs" />
+    <Compile Include="InlineValidation\IInlineValidatorT.cs" />
+    <Compile Include="InlineValidation\InlineStringParameterValidatorT.cs" />
+    <Compile Include="InlineValidation\InlineValidator.cs" />
+    <Compile Include="InlineValidation\InlineValidatorExtensions.cs" />
     <Compile Include="IParameterInfo.cs" />
     <Compile Include="ParameterInfo.cs" />
     <Compile Include="ParameterInfoNode.cs" />
@@ -65,5 +70,6 @@
     <Compile Include="IValidationError.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

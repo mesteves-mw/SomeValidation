@@ -7,7 +7,7 @@
         /// <summary>
         /// Call delegate to carry parent parameter name context. e.g. forName("MyParam") returns "parentName.MyParam".
         /// </summary>
-        protected delegate string ForName(string parameterName = null);
+        public delegate string ForName(string parameterName = null);
 
         public override void Validate(T instance, params Guid[] ruleSet)
         {

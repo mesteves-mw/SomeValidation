@@ -1,4 +1,6 @@
-﻿namespace SomeValidation.Test
+﻿using SomeValidation.InlineValidation;
+
+namespace SomeValidation.Test
 {
     using NUnit.Framework;
     using System;
@@ -9,17 +11,11 @@
     [TestFixture]
     public class StatementsTest
     {
-        protected class TestValidator : IValidator {
-            public void RaiseError(object parameterName, string errorMessage)
-            {
-                Console.WriteLine(errorMessage, parameterName);
-            }
-        }
-
         [Test]
         public void TestStatements()
         {
-            var v = new TestValidator();
+            var v = new InlineValidator(
+                onError: ve => Console.WriteLine(ve.ErrorMessage));
 
             v.ShouldNotBe("string", "").NullOrEmpty();
             v.ShouldNotBe("string", "").Empty();
@@ -53,7 +49,7 @@
 
             v.ShouldNotBe("string-abc", "abc123").Matching(@"bc\d+");
 
-            v.ShouldNotBe("string", "", "The parameter '{{0}}' is invalid.").NullOrEmpty();
+            v.ShouldNotBe("string-param", "", "The parameter '@parameterName' is invalid.").NullOrEmpty();
 
             //optional no fluent interface return
             v.ShouldNotBe("cardnumber5", "10345").Do(stmt =>
@@ -63,7 +59,7 @@
             });
 
             //branching
-            v.ShouldNotBe("cardnumber5", "10345").Do(stmt =>
+            v.ShouldNotBe("cardnumber6", "103456").Do(stmt =>
             {
                 if (stmt.Value != null)
                     stmt.Length().LessThanOrEqualTo(10);
@@ -71,12 +67,19 @@
                     stmt.Null();
             });
 
+            //optional null check fluent interface
+            v.ShouldNotBe("cardnumber7", "<1234>").NullOrEmpty()
+                .Then(stmt => stmt
+                    .Matching(@"<\w+>")
+                    .Length().LessThanOrEqualTo(10));
+
             //optional keep fluent interface 1
             v.ShouldNotBe("cardnumber10", "1034567890").Do(stmt =>
             {
                 if (stmt.Value == null) return stmt;
 
-                return stmt.ApplyConstraint(stmt.Value.Length >= 10 && stmt.Value.StartsWith("10"),
+                return stmt.ApplyConstraint(
+                    stmt.Value.Length >= 10 && stmt.Value.StartsWith("10"),
                     "invalid 10-16"); //cardNumber should not be invalid 10-16.
             });
 
@@ -86,7 +89,7 @@
                 if (stmt.Value == null) return stmt;
 
                 if (stmt.Value.Length >= 16 && stmt.Value.StartsWith("16"))
-                    return stmt.OverrideMessage("{0} is invalid 16.").RaiseError(); //cardNumber is invalid 16-25.
+                    return stmt.OverrideMessage("@parameterName is invalid 16.").RaiseError(); //cardNumber is invalid 16-25.
 
                 return stmt;
             });

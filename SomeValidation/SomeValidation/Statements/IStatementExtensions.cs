@@ -28,14 +28,16 @@ namespace SomeValidation.Statements
             return stmt;
         }
 
-        public static void Do<T>(this IBeStatement<T> stmt, Action<IBeStatement<T>> action)
+        public static void Do<T>(this IBeStatement<T> stmt, Action<IBeStatement<T>> action) => action(stmt);
+        public static void Then<T>(this IBeStatement<T> stmt, Action<IBeStatement<T>> action)
         {
-            action(stmt);
+            if (stmt.ErrorsRaised == 0)
+            {
+                action(stmt);
+            }
         }
 
-        public static IBeStatement<T> Do<T>(this IBeStatement<T> stmt, Func<IBeStatement<T>, IBeStatement<T>> func)
-        {
-            return func(stmt);
-        }
+        public static IBeStatement<T> Do<T>(this IBeStatement<T> stmt, Func<IBeStatement<T>, IBeStatement<T>> func) => func(stmt);
+        public static IBeStatement<T> Then<T>(this IBeStatement<T> stmt, Func<IBeStatement<T>, IBeStatement<T>> func) => stmt.ErrorsRaised == 0 ? func(stmt) : stmt;
     }
 }
