@@ -27,7 +27,7 @@ namespace SomeValidation.Statements
             return new BeStatement<int>
             {
                 Validator = ssb.Validator,
-                Param = ssb.Param,
+                ParamameterName = ssb.ParamameterName,
                 Message = ssb.Message.Replace("@parameterName", "@parameterName count"),
                 Negation = ssb.Negation,
                 Value = ssb.Value?.Count ?? 0

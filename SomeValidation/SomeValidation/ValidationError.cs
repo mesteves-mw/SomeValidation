@@ -6,13 +6,15 @@
     {
         private string _errorMessageTemplate;
 
-        public ValidationError(string parameterName, string errorMessage)
+        public ValidationError(string parameterName, object parameterValue, string errorMessage)
         {
             this.ParameterName = parameterName;
+            this.ParameterValue = parameterValue;
             this._errorMessageTemplate = errorMessage;
         }
 
         public string ParameterName { get; set; }
+        public object ParameterValue { get; set;  }
 
         public string ErrorMessage
         {

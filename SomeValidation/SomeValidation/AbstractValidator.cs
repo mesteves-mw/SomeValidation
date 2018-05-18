@@ -20,14 +20,19 @@
             OnError?.Invoke(failure);
         }
 
-        public virtual void RaiseError(string parameterName, string errorMessage)
+        public virtual void RaiseError(string parameterName, object parameterValue, string errorMessage)
         {
-            this.RaiseError(new ValidationError(parameterName, errorMessage));
+            this.RaiseError(new ValidationError(parameterName, parameterValue, errorMessage));
         }
 
         public virtual void RaiseError(object parameterName, string errorMessage)
         {
-            this.RaiseError(parameterName as string, errorMessage);
+            this.RaiseError(parameterName as string, null, errorMessage);
+        }
+
+        public virtual void RaiseError(object parameterName, object parameterValue, string errorMessage)
+        {
+            this.RaiseError(parameterName as string, parameterValue, errorMessage);
         }
     }
 

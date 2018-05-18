@@ -7,7 +7,7 @@
             return new BeStatement<T>
             {
                 Validator = v,
-                Param = param,
+                ParamameterName = param,
                 Value = instance,
                 Negation = false,
                 Message = messageOverride ?? "@parameterName should be @constraintPredicator."
@@ -19,7 +19,7 @@
             return new BeStatement<T>
             {
                 Validator = v,
-                Param = param,
+                ParamameterName = param,
                 Value = instance,
                 Negation = true,
                 Message = messageOverride ?? "@parameterName should not be @constraintPredicator."
@@ -31,7 +31,7 @@
             return new BeStatement<T>
             {
                 Validator = v,
-                Param = param,
+                ParamameterName = param,
                 Value = instance,
                 Negation = true,
                 Message = messageOverride ?? "@parameterName cannot be @constraintPredicator."

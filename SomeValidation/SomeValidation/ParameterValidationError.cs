@@ -13,6 +13,7 @@
         }
 
         public string ParameterName => Parameter.Name;
+        public object ParameterValue { get; }
         public IParameterInfo Parameter { get; set; }
         public string ErrorMessage
         {

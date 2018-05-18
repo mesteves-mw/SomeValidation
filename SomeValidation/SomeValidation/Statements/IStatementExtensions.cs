@@ -8,7 +8,7 @@ namespace SomeValidation.Statements
         {
             if (!stmt.Negation ^ constraintCheck)
             {
-                stmt.Validator.RaiseError(stmt.Param, stmt.Message.Replace("@constraintPredicator", constraintPredicator));
+                stmt.Validator.RaiseError(stmt.ParamameterName, stmt.Value, stmt.Message.Replace("@constraintPredicator", constraintPredicator));
                 stmt.ErrorsRaised++;
             }
 
@@ -17,7 +17,7 @@ namespace SomeValidation.Statements
 
         public static IBeStatement<T> RaiseError<T>(this IBeStatement<T> stmt)
         {
-            stmt.Validator.RaiseError(stmt.Param, stmt.Message);
+            stmt.Validator.RaiseError(stmt.ParamameterName, stmt.Value, stmt.Message);
             stmt.ErrorsRaised++;
             return stmt;
         }
@@ -29,6 +29,7 @@ namespace SomeValidation.Statements
         }
 
         public static void Do<T>(this IBeStatement<T> stmt, Action<IBeStatement<T>> action) => action(stmt);
+
         public static void Then<T>(this IBeStatement<T> stmt, Action<IBeStatement<T>> action)
         {
             if (stmt.ErrorsRaised == 0)
@@ -38,6 +39,7 @@ namespace SomeValidation.Statements
         }
 
         public static IBeStatement<T> Do<T>(this IBeStatement<T> stmt, Func<IBeStatement<T>, IBeStatement<T>> func) => func(stmt);
+
         public static IBeStatement<T> Then<T>(this IBeStatement<T> stmt, Func<IBeStatement<T>, IBeStatement<T>> func) => stmt.ErrorsRaised == 0 ? func(stmt) : stmt;
     }
 }
