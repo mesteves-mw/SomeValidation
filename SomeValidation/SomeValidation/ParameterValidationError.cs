@@ -6,9 +6,10 @@
     {
         private string _errorMessageTemplate;
 
-        public ParameterValidationError(IParameterInfo parameter, string errorMessage)
+        public ParameterValidationError(IParameterInfo parameter, object parameterValue, string errorMessage)
         {
             this.Parameter = parameter;
+            this.ParameterValue = parameterValue;
             this._errorMessageTemplate = errorMessage;
         }
 

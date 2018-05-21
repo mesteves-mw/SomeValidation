@@ -30,14 +30,19 @@
 
         protected abstract void Validate(ForName forName, T instance, params Guid[] ruleSet);
 
-        public void RaiseError(IParameterInfo parameter, string errorMessage)
+        public virtual void RaiseError(IParameterInfo parameterName, object parameterValue, string errorMessage)
         {
-            this.RaiseError(new ParameterValidationError(parameter, errorMessage));
+            this.RaiseError(new ParameterValidationError(parameterName, parameterValue, errorMessage));
         }
 
         public override void RaiseError(object parameter, string errorMessage)
         {
-            this.RaiseError(parameter as IParameterInfo, errorMessage);
+            this.RaiseError(parameter as IParameterInfo, null, errorMessage);
+        }
+
+        public override void RaiseError(object parameterName, object parameterValue, string errorMessage)
+        {
+            this.RaiseError(parameterName as IParameterInfo, parameterValue, errorMessage);
         }
     }
 }
